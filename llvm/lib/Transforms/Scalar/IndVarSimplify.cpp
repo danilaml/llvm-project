@@ -2643,7 +2643,9 @@ bool IndVarSimplify::sinkUnusedInvariants(Loop *L) {
 
     MadeAnyChanges = true;
     ToMove->moveBefore(*ExitBlock, InsertPt);
-    if (Done) break;
+    if (Done)
+      break;
+    I++; // bugfix? going to be decremented at the start of the loop
     InsertPt = ToMove->getIterator();
   }
 
