@@ -2589,6 +2589,15 @@ bool IndVarSimplify::sinkUnusedInvariants(Loop *L) {
     if (I->mayHaveSideEffects() || I->mayReadFromMemory())
       continue;
 
+    if (llvm::any_of(I->operands(), [Preheader](const Use &Op) {
+          if (const auto *OpInst = dyn_cast<Instruction>(Op.getUser()))
+            return OpInst->getParent() == Preheader &&
+                       OpInst->mayHaveSideEffects() ||
+                   OpInst->mayReadFromMemory();
+          return false;
+        }))
+      continue;
+
     // Skip debug info intrinsics.
     if (isa<DbgInfoIntrinsic>(I))
       continue;
